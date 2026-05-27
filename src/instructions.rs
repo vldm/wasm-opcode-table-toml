@@ -1,4 +1,4 @@
-//! Schema for [`instructions.toml`](../../instructions.toml).
+//! Schema for [`instructions.toml`](../instructions.toml).
 
 use serde::{Deserialize, Deserializer};
 
@@ -318,9 +318,9 @@ mod embedded {
 
     use super::{InstructionsTable, parse_instructions_toml};
 
-    /// Raw TOML embedded at compile time from the repo-root `instructions.toml`.
+    /// Raw TOML embedded at compile time from `instructions.toml` in the package root.
     pub const INSTRUCTIONS_TOML: &str =
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../instructions.toml"));
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/instructions.toml"));
 
     static PARSED: OnceLock<InstructionsTable> = OnceLock::new();
 

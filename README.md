@@ -48,7 +48,7 @@ Later updated using LLM with spec from [WebAssembly Spec](https://github.com/Web
 
 ## Rust crate (`wasm-opcode-table`)
 
-The [`wasm-opcode-table`](./wasm-opcode-table) crate provides a typed schema and parser for `instructions.toml`. Use it in tools, validators, or codegen without hand-maintaining opcode tables.
+This repository is also the [`wasm-opcode-table`](https://crates.io/crates/wasm-opcode-table) crate — a typed schema and parser for `instructions.toml`. Use it in tools, validators, or codegen without hand-maintaining opcode tables.
 
 **Always available:**
 
@@ -56,22 +56,28 @@ The [`wasm-opcode-table`](./wasm-opcode-table) crate provides a typed schema and
 - [`parse_instructions_toml`](https://docs.rs/wasm-opcode-table/latest/wasm_opcode_table/fn.parse_instructions_toml.html) to parse any TOML string
 - [`validate_instructions_table`](https://docs.rs/wasm-opcode-table/latest/wasm_opcode_table/fn.validate_instructions_table.html) for control-frame invariants
 
-**Optional feature `instructions-toml`:** embeds the repo-root `instructions.toml` at compile time via `include_str!` and exposes [`instructions()`](https://docs.rs/wasm-opcode-table/latest/wasm_opcode_table/fn.instructions.html) for a lazily parsed `&'static InstructionsTable`.
+**Optional feature `instructions-toml`:** embeds `instructions.toml` from the crate package at compile time via `include_str!` and exposes [`instructions()`](https://docs.rs/wasm-opcode-table/latest/wasm_opcode_table/fn.instructions.html) for a lazily parsed `&'static InstructionsTable`.
+
+## Usage
+
 
 ```toml
 [dependencies]
-wasm-opcode-table = { path = "../wasm-opcode-table", features = ["instructions-toml"] }
+wasm-opcode-table = { version = "0.1", features = ["instructions-toml"] }
 ```
 
 ```rust
+use std::fs;
 use wasm_opcode_table::{instructions, parse_instructions_toml, Instruction, StackEntry};
 
-// Parse your own TOML (no embed feature required)
-let table = parse_instructions_toml(include_str!("../instructions.toml"))?;
+// Load and parse from a file (no embed feature required)
+let source = fs::read_to_string("instructions.toml")?;
+let table = parse_instructions_toml(&source)?;
 
-// Or use the embedded table (requires `instructions-toml`)
+// Or use the bundled table (requires `instructions-toml`)
 let table = instructions();
 let add = table.instructions.iter().find(|i| i.name == "i32.add").unwrap();
 ```
 
-Run tests from the crate directory: `cargo test -p wasm-opcode-table --features instructions-toml`.
+## Tests
+Run tests from the repository root: `cargo test --features instructions-toml`.

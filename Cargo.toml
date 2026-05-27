@@ -9,9 +9,16 @@ authors = ["Vladimir Motylenko <me@vldm.cc>"]
 repository = "https://github.com/vldm/wasm-opcode-table-toml"
 homepage = "https://github.com/vldm/wasm-opcode-table-toml"
 documentation = "https://docs.rs/wasm-opcode-table"
-readme = "../README.md"
+readme = "README.md"
 keywords = ["wasm", "webassembly", "opcode", "instruction", "toml"]
 categories = ["wasm", "parser-implementations", "data-structures"]
+include = [
+    "src/**/*",
+    "instructions.toml",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+]
 
 [features]
 default = []

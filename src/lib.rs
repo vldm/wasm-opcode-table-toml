@@ -38,7 +38,7 @@ mod tests {
 
     const SAMPLE: &str = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../instructions.toml"
+        "/instructions.toml"
     ));
 
     #[test]
