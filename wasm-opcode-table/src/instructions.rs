@@ -99,7 +99,7 @@ impl<'de> Deserialize<'de> for StackEntry {
     where
         D: Deserializer<'de>,
     {
-        serde_helpers::StackEntryRaw::deserialize(deserializer).map(Into::into)
+        serde_helpers::deserialize_stack_entry(deserializer)
     }
 }
 
@@ -108,10 +108,17 @@ mod serde_helpers {
     use serde::de;
     use serde::{Deserialize, Deserializer};
 
+    pub(super) fn deserialize_stack_entry<'de, D>(deserializer: D) -> Result<StackEntry, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        StackEntryRaw::deserialize(deserializer).map(Into::into)
+    }
+
     /// Variant order matches most-specific-first for untagged matching.
     #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
     #[serde(untagged)]
-    pub(super) enum StackEntryRaw {
+    enum StackEntryRaw {
         Control(ControlFrame),
         Unreachable(UnreachableEntry),
         TypeOf(TypeOfEntry),
@@ -180,6 +187,11 @@ pub enum ValidateError {
 }
 
 /// Check control-frame label invariants (`loop` → `Start`, `block`/`if` → `End`).
+///
+/// # Errors
+///
+/// Returns [`ValidateError::ControlLabelMismatch`] when a control frame's `label`
+/// does not match its `control` kind.
 pub fn validate_stack_entry(entry: &StackEntry) -> Result<(), ValidateError> {
     let StackEntry::Control(frame) = entry else {
         return Ok(());
@@ -187,8 +199,7 @@ pub fn validate_stack_entry(entry: &StackEntry) -> Result<(), ValidateError> {
     let ok = matches!(
         (frame.control, frame.label),
         (ControlKind::Loop, LabelTarget::Start)
-            | (ControlKind::Block, LabelTarget::End)
-            | (ControlKind::If, LabelTarget::End)
+            | (ControlKind::Block | ControlKind::If, LabelTarget::End)
     );
     if ok {
         Ok(())
@@ -201,6 +212,10 @@ pub fn validate_stack_entry(entry: &StackEntry) -> Result<(), ValidateError> {
 }
 
 /// Validate every stack entry in the table.
+///
+/// # Errors
+///
+/// Returns the first [`ValidateError`] produced by [`validate_stack_entry`].
 pub fn validate_instructions_table(table: &InstructionsTable) -> Result<(), ValidateError> {
     for instruction in &table.instructions {
         if let Some(stack) = &instruction.stack_type {
@@ -213,6 +228,10 @@ pub fn validate_instructions_table(table: &InstructionsTable) -> Result<(), Vali
 }
 
 /// Parse TOML source into an [`InstructionsTable`].
+///
+/// # Errors
+///
+/// Returns a TOML deserialization error when `source` is invalid or does not match the schema.
 pub fn parse_instructions_toml(source: &str) -> Result<InstructionsTable, toml::de::Error> {
     toml::from_str(source)
 }
@@ -230,6 +249,11 @@ mod embedded {
     static PARSED: OnceLock<InstructionsTable> = OnceLock::new();
 
     /// Lazily parsed embedded instruction table.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the embedded `instructions.toml` does not match the schema. The embedded
+    /// file is validated at build time by design and should always parse successfully.
     pub fn instructions() -> &'static InstructionsTable {
         PARSED.get_or_init(|| {
             parse_instructions_toml(INSTRUCTIONS_TOML)
