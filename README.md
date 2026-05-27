@@ -79,5 +79,45 @@ let table = instructions();
 let add = table.instructions.iter().find(|i| i.name == "i32.add").unwrap();
 ```
 
+
+# Contributing 
+
+Feel free to create an issue if you find any mistake, or didn't find an instruction you expected.
+Or create a pull request directly if you want to fix something.
+
+Please avoid storing editors/llms configs in the repository.
+
+## Finding missing instructions (`script/diff-spectec.rs`)
+
+The [rust-script](https://github.com/fornwall/rust-script) in [`script/diff-spectec.rs`](./script/diff-spectec.rs) compares opcode keys in [`instructions.toml`](./instructions.toml) against a Spectec grammar file from the [WebAssembly spec](https://github.com/WebAssembly/spec/blob/main/specification/wasm-latest/5.3-binary.instructions.spectec). Use it to see which rows still need to be added to the table.
+
+```bash
+# One-time: install rust-script
+cargo install rust-script
+
+# Fetch the latest binary-instructions grammar (optional)
+curl -sL -o spec.instructions.spectec \
+  https://raw.githubusercontent.com/WebAssembly/spec/main/specification/wasm-latest/5.3-binary.instructions.spectec
+
+# Compare against the bundled instructions.toml (default second argument)
+./script/diff-spectec.rs spec.instructions.spectec
+
+# Or pass a custom instructions file
+./script/diff-spectec.rs spec.instructions.spectec path/to/instructions.toml
+```
+
+Example output (truncated):
+
+```
+opcode          spectec                              section
+--------------  -----------------------------------  ----------------
+0x08            THROW x                              control instructions
+[0xFB, 24]      BR_ON_CAST l (REF null_1? ht_1) ...  control instructions
+
+42 missing instruction(s).
+```
+
+Exit code `2` means there are missing opcodes; `0` means the table covers every rule in the Spectec file.
+
 ## Tests
 Run tests from the repository root: `cargo test --features instructions-toml`.

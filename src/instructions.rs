@@ -27,7 +27,7 @@ pub struct Instruction {
 }
 
 /// Opcode as written in TOML: an integer (`0x6A`) or a two-element array (`[0xFC, 17]`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Opcode {
     /// `opcode = 0xNN`
     Single(u8),
