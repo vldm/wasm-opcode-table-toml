@@ -1,0 +1,83 @@
+;;
+;; Binary instruction grammar from the Threads proposal.
+;; Source: https://github.com/WebAssembly/threads/blob/main/proposals/threads/Overview.md
+;;
+;; Subopcodes after 0xFE are varuints (LEB128), not raw bytes — see wasmparser
+;; `visit_0xfe_operator` (read_var_u32). Spectec uses N:Bu32 like wasm-latest 0xFC/0xFD.
+;; The threads overview writes 0xFE 0x10 for subopcode *value* 16; that is not a second hex byte.
+;;
+;; (The threads repo does not ship a separate 5.3-binary.instructions.spectec file.)
+;; (LLM GENERATED from https://github.com/WebAssembly/threads/blob/979d0fcb994439423d63b2f0a8a7332d6285dd84/document/core/binary/instructions.rst)
+
+
+;; Atomic instructions
+
+grammar Binstr/atomic : instr = ...
+  | 0xFE 0:Bu32 m:memarg => MEMORY.ATOMIC.NOTIFY m
+  | 0xFE 1:Bu32 m:memarg => MEMORY.ATOMIC.WAIT32 m
+  | 0xFE 2:Bu32 m:memarg => MEMORY.ATOMIC.WAIT64 m
+  | 0xFE 3:Bu32 0x00 => ATOMIC.FENCE
+  | 0xFE 16:Bu32 m:memarg => I32.ATOMIC.LOAD m
+  | 0xFE 17:Bu32 m:memarg => I64.ATOMIC.LOAD m
+  | 0xFE 18:Bu32 m:memarg => I32.ATOMIC.LOAD8_U m
+  | 0xFE 19:Bu32 m:memarg => I32.ATOMIC.LOAD16_U m
+  | 0xFE 20:Bu32 m:memarg => I64.ATOMIC.LOAD8_U m
+  | 0xFE 21:Bu32 m:memarg => I64.ATOMIC.LOAD16_U m
+  | 0xFE 22:Bu32 m:memarg => I64.ATOMIC.LOAD32_U m
+  | 0xFE 23:Bu32 m:memarg => I32.ATOMIC.STORE m
+  | 0xFE 24:Bu32 m:memarg => I64.ATOMIC.STORE m
+  | 0xFE 25:Bu32 m:memarg => I32.ATOMIC.STORE8 m
+  | 0xFE 26:Bu32 m:memarg => I32.ATOMIC.STORE16 m
+  | 0xFE 27:Bu32 m:memarg => I64.ATOMIC.STORE8 m
+  | 0xFE 28:Bu32 m:memarg => I64.ATOMIC.STORE16 m
+  | 0xFE 29:Bu32 m:memarg => I64.ATOMIC.STORE32 m
+  | 0xFE 30:Bu32 m:memarg => I32.ATOMIC.RMW.ADD m
+  | 0xFE 31:Bu32 m:memarg => I64.ATOMIC.RMW.ADD m
+  | 0xFE 32:Bu32 m:memarg => I32.ATOMIC.RMW8.ADD_U m
+  | 0xFE 33:Bu32 m:memarg => I32.ATOMIC.RMW16.ADD_U m
+  | 0xFE 34:Bu32 m:memarg => I64.ATOMIC.RMW8.ADD_U m
+  | 0xFE 35:Bu32 m:memarg => I64.ATOMIC.RMW16.ADD_U m
+  | 0xFE 36:Bu32 m:memarg => I64.ATOMIC.RMW32.ADD_U m
+  | 0xFE 37:Bu32 m:memarg => I32.ATOMIC.RMW.SUB m
+  | 0xFE 38:Bu32 m:memarg => I64.ATOMIC.RMW.SUB m
+  | 0xFE 39:Bu32 m:memarg => I32.ATOMIC.RMW8.SUB_U m
+  | 0xFE 40:Bu32 m:memarg => I32.ATOMIC.RMW16.SUB_U m
+  | 0xFE 41:Bu32 m:memarg => I64.ATOMIC.RMW8.SUB_U m
+  | 0xFE 42:Bu32 m:memarg => I64.ATOMIC.RMW16.SUB_U m
+  | 0xFE 43:Bu32 m:memarg => I64.ATOMIC.RMW32.SUB_U m
+  | 0xFE 44:Bu32 m:memarg => I32.ATOMIC.RMW.AND m
+  | 0xFE 45:Bu32 m:memarg => I64.ATOMIC.RMW.AND m
+  | 0xFE 46:Bu32 m:memarg => I32.ATOMIC.RMW8.AND_U m
+  | 0xFE 47:Bu32 m:memarg => I32.ATOMIC.RMW16.AND_U m
+  | 0xFE 48:Bu32 m:memarg => I64.ATOMIC.RMW8.AND_U m
+  | 0xFE 49:Bu32 m:memarg => I64.ATOMIC.RMW16.AND_U m
+  | 0xFE 50:Bu32 m:memarg => I64.ATOMIC.RMW32.AND_U m
+  | 0xFE 51:Bu32 m:memarg => I32.ATOMIC.RMW.OR m
+  | 0xFE 52:Bu32 m:memarg => I64.ATOMIC.RMW.OR m
+  | 0xFE 53:Bu32 m:memarg => I32.ATOMIC.RMW8.OR_U m
+  | 0xFE 54:Bu32 m:memarg => I32.ATOMIC.RMW16.OR_U m
+  | 0xFE 55:Bu32 m:memarg => I64.ATOMIC.RMW8.OR_U m
+  | 0xFE 56:Bu32 m:memarg => I64.ATOMIC.RMW16.OR_U m
+  | 0xFE 57:Bu32 m:memarg => I64.ATOMIC.RMW32.OR_U m
+  | 0xFE 58:Bu32 m:memarg => I32.ATOMIC.RMW.XOR m
+  | 0xFE 59:Bu32 m:memarg => I64.ATOMIC.RMW.XOR m
+  | 0xFE 60:Bu32 m:memarg => I32.ATOMIC.RMW8.XOR_U m
+  | 0xFE 61:Bu32 m:memarg => I32.ATOMIC.RMW16.XOR_U m
+  | 0xFE 62:Bu32 m:memarg => I64.ATOMIC.RMW8.XOR_U m
+  | 0xFE 63:Bu32 m:memarg => I64.ATOMIC.RMW16.XOR_U m
+  | 0xFE 64:Bu32 m:memarg => I64.ATOMIC.RMW32.XOR_U m
+  | 0xFE 65:Bu32 m:memarg => I32.ATOMIC.RMW.XCHG m
+  | 0xFE 66:Bu32 m:memarg => I64.ATOMIC.RMW.XCHG m
+  | 0xFE 67:Bu32 m:memarg => I32.ATOMIC.RMW8.XCHG_U m
+  | 0xFE 68:Bu32 m:memarg => I32.ATOMIC.RMW16.XCHG_U m
+  | 0xFE 69:Bu32 m:memarg => I64.ATOMIC.RMW8.XCHG_U m
+  | 0xFE 70:Bu32 m:memarg => I64.ATOMIC.RMW16.XCHG_U m
+  | 0xFE 71:Bu32 m:memarg => I64.ATOMIC.RMW32.XCHG_U m
+  | 0xFE 72:Bu32 m:memarg => I32.ATOMIC.RMW.CMPXCHG m
+  | 0xFE 73:Bu32 m:memarg => I64.ATOMIC.RMW.CMPXCHG m
+  | 0xFE 74:Bu32 m:memarg => I32.ATOMIC.RMW8.CMPXCHG_U m
+  | 0xFE 75:Bu32 m:memarg => I32.ATOMIC.RMW16.CMPXCHG_U m
+  | 0xFE 76:Bu32 m:memarg => I64.ATOMIC.RMW8.CMPXCHG_U m
+  | 0xFE 77:Bu32 m:memarg => I64.ATOMIC.RMW16.CMPXCHG_U m
+  | 0xFE 78:Bu32 m:memarg => I64.ATOMIC.RMW32.CMPXCHG_U m
+  | ...

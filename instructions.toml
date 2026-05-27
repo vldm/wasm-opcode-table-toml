@@ -3579,3 +3579,976 @@ category = "vector"
 stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
 feature = "relaxed-simd"
 since = "2"
+
+[[instructions]]
+name = "throw"
+opcode = 0x08
+category = "control"
+immediates = [ { type = "tagidx", name = "x" } ]
+stack-type = { from = [ { types-of = "params(x)" } ], to = [ { unreachable = true } ] }
+feature = "exception-handling"
+since = "2"
+
+[[instructions]]
+name = "throw_ref"
+opcode = 0x0A
+category = "control"
+stack-type = { from = [ { type = "exnref" } ], to = [ { unreachable = true } ] }
+feature = "exception-handling"
+since = "2"
+
+[[instructions]]
+name = "return_call"
+opcode = 0x12
+category = "control"
+immediates = [ { type = "funcidx", name = "x" } ]
+stack-type = { from = [ { types-of = "params(x)" } ], to = [ { unreachable = true } ] }
+feature = "tail-call"
+since = "2"
+
+[[instructions]]
+name = "return_call_indirect"
+opcode = 0x13
+category = "control"
+immediates = [ { type = "tableidx", name = "x", binary-order = 1 }, { type = "typeidx", name = "y", binary-order = 0 } ]
+stack-type = { from = [ { types-of = "params(y)" }, { type = "i32" } ], to = [ { unreachable = true } ] }
+feature = "tail-call"
+since = "2"
+
+[[instructions]]
+name = "call_ref"
+opcode = 0x14
+category = "control"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { types-of = "params(x)" }, { type = "ref" } ], to = [ { types-of = "results(x)" } ] }
+feature = "function-references"
+since = "2"
+
+[[instructions]]
+name = "return_call_ref"
+opcode = 0x15
+category = "control"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { types-of = "params(x)" }, { type = "ref" } ], to = [ { unreachable = true } ] }
+feature = "function-references"
+since = "2"
+
+[[instructions]]
+name = "try_table"
+opcode = 0x1F
+category = "control"
+immediates = [ { type = "blocktype", name = "bt" } ]
+stack-type = { from = [ { types-of = "params(bt)" } ], to = [ { control = "block", start = "params(bt)", end = "results(bt)", label = "end" } ] }
+feature = "exception-handling"
+since = "2"
+
+[[instructions]]
+name = "br_on_null"
+opcode = 0xD5
+category = "control"
+immediates = [ { type = "labelidx", name = "l" } ]
+stack-type = { from = [ { type = "ref" }, { types-of = "l" } ], to = [ { types-of = "l" } ] }
+feature = "function-references"
+since = "2"
+
+[[instructions]]
+name = "br_on_non_null"
+opcode = 0xD6
+category = "control"
+immediates = [ { type = "labelidx", name = "l" } ]
+stack-type = { from = [ { type = "ref" }, { types-of = "l" } ], to = [ { types-of = "l" } ] }
+feature = "function-references"
+since = "2"
+
+[[instructions]]
+name = "ref.eq"
+opcode = 0xD3
+category = "reference"
+stack-type = { from = [ { type = "ref" }, { type = "ref" } ], to = [ { type = "i32" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "ref.as_non_null"
+opcode = 0xD4
+category = "reference"
+stack-type = { from = [ { type = "ref" } ], to = [ { type = "ref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "struct.new"
+opcode = [0xFB, 0]
+category = "struct"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { types-of = "fields(x)" } ], to = [ { type = "structref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "struct.new_default"
+opcode = [0xFB, 1]
+category = "struct"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [], to = [ { type = "structref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "struct.get"
+opcode = [0xFB, 2]
+category = "struct"
+immediates = [ { type = "typeidx", name = "x" }, { type = "fieldidx", name = "i" } ]
+stack-type = { from = [ { type = "structref" } ], to = [ { type-of = "field(x,i)" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "struct.get_s"
+opcode = [0xFB, 3]
+category = "struct"
+immediates = [ { type = "typeidx", name = "x" }, { type = "fieldidx", name = "i" } ]
+stack-type = { from = [ { type = "structref" } ], to = [ { type-of = "field(x,i)" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "struct.get_u"
+opcode = [0xFB, 4]
+category = "struct"
+immediates = [ { type = "typeidx", name = "x" }, { type = "fieldidx", name = "i" } ]
+stack-type = { from = [ { type = "structref" } ], to = [ { type-of = "field(x,i)" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "struct.set"
+opcode = [0xFB, 5]
+category = "struct"
+immediates = [ { type = "typeidx", name = "x" }, { type = "fieldidx", name = "i" } ]
+stack-type = { from = [ { type = "structref" }, { type-of = "field(x,i)" } ], to = [] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.new"
+opcode = [0xFB, 6]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { type = "i32" }, { type-of = "elem(x)" } ], to = [ { type = "arrayref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.new_default"
+opcode = [0xFB, 7]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "arrayref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.new_fixed"
+opcode = [0xFB, 8]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" }, { type = "u32", name = "n" } ]
+stack-type = { from = [ { types-of = "elems(x,n)" } ], to = [ { type = "arrayref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.new_data"
+opcode = [0xFB, 9]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" }, { type = "dataidx", name = "y" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [ { type = "arrayref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.new_elem"
+opcode = [0xFB, 10]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" }, { type = "elemidx", name = "y" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [ { type = "arrayref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.get"
+opcode = [0xFB, 11]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" } ], to = [ { type-of = "elem(x)" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.get_s"
+opcode = [0xFB, 12]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" } ], to = [ { type-of = "elem(x)" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.get_u"
+opcode = [0xFB, 13]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" } ], to = [ { type-of = "elem(x)" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.set"
+opcode = [0xFB, 14]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" }, { type-of = "elem(x)" } ], to = [] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.len"
+opcode = [0xFB, 15]
+category = "array"
+stack-type = { from = [ { type = "arrayref" } ], to = [ { type = "i32" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.fill"
+opcode = [0xFB, 16]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" }, { type = "i32" }, { type-of = "elem(x)" } ], to = [] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.copy"
+opcode = [0xFB, 17]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" }, { type = "typeidx", name = "y" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" }, { type = "arrayref" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.init_data"
+opcode = [0xFB, 18]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" }, { type = "dataidx", name = "y" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" }, { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "array.init_elem"
+opcode = [0xFB, 19]
+category = "array"
+immediates = [ { type = "typeidx", name = "x" }, { type = "elemidx", name = "y" } ]
+stack-type = { from = [ { type = "arrayref" }, { type = "i32" }, { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "ref.test"
+opcode = [0xFB, 20]
+category = "reference"
+immediates = [ { type = "heaptype", name = "ht" } ]
+stack-type = { from = [ { type = "ref" } ], to = [ { type = "i32" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "ref.test"
+variant = "null"
+opcode = [0xFB, 21]
+category = "reference"
+immediates = [ { type = "heaptype", name = "ht" } ]
+stack-type = { from = [ { type = "ref" } ], to = [ { type = "i32" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "ref.cast"
+opcode = [0xFB, 22]
+category = "reference"
+immediates = [ { type = "heaptype", name = "ht" } ]
+stack-type = { from = [ { type = "ref" } ], to = [ { type = "ref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "ref.cast"
+variant = "null"
+opcode = [0xFB, 23]
+category = "reference"
+immediates = [ { type = "heaptype", name = "ht" } ]
+stack-type = { from = [ { type = "ref" } ], to = [ { type = "ref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "br_on_cast"
+opcode = [0xFB, 24]
+category = "control"
+immediates = [ { type = "castop", name = "c" }, { type = "labelidx", name = "l" }, { type = "heaptype", name = "ht1" }, { type = "heaptype", name = "ht2" } ]
+stack-type = { from = [ { type = "ref" }, { types-of = "l" } ], to = [ { types-of = "l" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "br_on_cast_fail"
+opcode = [0xFB, 25]
+category = "control"
+immediates = [ { type = "castop", name = "c" }, { type = "labelidx", name = "l" }, { type = "heaptype", name = "ht1" }, { type = "heaptype", name = "ht2" } ]
+stack-type = { from = [ { type = "ref" }, { types-of = "l" } ], to = [ { types-of = "l" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "any.convert_extern"
+opcode = [0xFB, 26]
+category = "reference"
+stack-type = { from = [ { type = "externref" } ], to = [ { type = "anyref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "extern.convert_any"
+opcode = [0xFB, 27]
+category = "reference"
+stack-type = { from = [ { type = "anyref" } ], to = [ { type = "externref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "ref.i31"
+opcode = [0xFB, 28]
+category = "reference"
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i31ref" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "i31.get_s"
+opcode = [0xFB, 29]
+category = "reference"
+stack-type = { from = [ { type = "i31ref" } ], to = [ { type = "i32" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "i31.get_u"
+opcode = [0xFB, 30]
+category = "reference"
+stack-type = { from = [ { type = "i31ref" } ], to = [ { type = "i32" } ] }
+feature = "gc"
+since = "2"
+
+[[instructions]]
+name = "memory.atomic.notify"
+opcode = [0xFE, 0]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "memory.atomic.wait32"
+opcode = [0xFE, 1]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "memory.atomic.wait64"
+opcode = [0xFE, 2]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" }, { type = "i64" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "atomic.fence"
+opcode = [0xFE, 3]
+category = "atomic"
+stack-type = { from = [], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.load"
+opcode = [0xFE, 16]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.load"
+opcode = [0xFE, 17]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.load8_u"
+opcode = [0xFE, 18]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.load16_u"
+opcode = [0xFE, 19]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.load8_u"
+opcode = [0xFE, 20]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.load16_u"
+opcode = [0xFE, 21]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.load32_u"
+opcode = [0xFE, 22]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.store"
+opcode = [0xFE, 23]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.store"
+opcode = [0xFE, 24]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.store8"
+opcode = [0xFE, 25]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.store16"
+opcode = [0xFE, 26]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.store8"
+opcode = [0xFE, 27]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.store16"
+opcode = [0xFE, 28]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.store32"
+opcode = [0xFE, 29]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw.add"
+opcode = [0xFE, 30]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw.sub"
+opcode = [0xFE, 31]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw.and"
+opcode = [0xFE, 32]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw.or"
+opcode = [0xFE, 33]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw.xor"
+opcode = [0xFE, 34]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw.xchg"
+opcode = [0xFE, 35]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw.cmpxchg"
+opcode = [0xFE, 36]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw.add"
+opcode = [0xFE, 37]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw.sub"
+opcode = [0xFE, 38]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw.and"
+opcode = [0xFE, 39]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw.or"
+opcode = [0xFE, 40]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw.xor"
+opcode = [0xFE, 41]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw.xchg"
+opcode = [0xFE, 42]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw.cmpxchg"
+opcode = [0xFE, 43]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw8.add_u"
+opcode = [0xFE, 44]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw8.sub_u"
+opcode = [0xFE, 45]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw8.and_u"
+opcode = [0xFE, 46]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw8.or_u"
+opcode = [0xFE, 47]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw8.xor_u"
+opcode = [0xFE, 48]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw8.xchg_u"
+opcode = [0xFE, 49]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw8.cmpxchg_u"
+opcode = [0xFE, 50]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw8.add_u"
+opcode = [0xFE, 51]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw8.sub_u"
+opcode = [0xFE, 52]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw8.and_u"
+opcode = [0xFE, 53]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw8.or_u"
+opcode = [0xFE, 54]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw8.xor_u"
+opcode = [0xFE, 55]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw8.xchg_u"
+opcode = [0xFE, 56]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw8.cmpxchg_u"
+opcode = [0xFE, 57]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw16.add_u"
+opcode = [0xFE, 58]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw16.sub_u"
+opcode = [0xFE, 59]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw16.and_u"
+opcode = [0xFE, 60]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw16.or_u"
+opcode = [0xFE, 61]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw16.xor_u"
+opcode = [0xFE, 62]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw16.xchg_u"
+opcode = [0xFE, 63]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i32.atomic.rmw16.cmpxchg_u"
+opcode = [0xFE, 64]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i32" }, { type = "i32" } ], to = [ { type = "i32" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw16.add_u"
+opcode = [0xFE, 65]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw16.sub_u"
+opcode = [0xFE, 66]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw16.and_u"
+opcode = [0xFE, 67]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw16.or_u"
+opcode = [0xFE, 68]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw16.xor_u"
+opcode = [0xFE, 69]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw16.xchg_u"
+opcode = [0xFE, 70]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw16.cmpxchg_u"
+opcode = [0xFE, 71]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw32.add_u"
+opcode = [0xFE, 72]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw32.sub_u"
+opcode = [0xFE, 73]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw32.and_u"
+opcode = [0xFE, 74]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw32.or_u"
+opcode = [0xFE, 75]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw32.xor_u"
+opcode = [0xFE, 76]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw32.xchg_u"
+opcode = [0xFE, 77]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"
+
+[[instructions]]
+name = "i64.atomic.rmw32.cmpxchg_u"
+opcode = [0xFE, 78]
+category = "memory"
+immediates = [ { type = "memarg", name = "m" } ]
+stack-type = { from = [ { type = "i32" }, { type = "i64" }, { type = "i64" } ], to = [ { type = "i64" } ] }
+feature = "threads"
+since = "2"

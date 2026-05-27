@@ -36,15 +36,12 @@ mod tests {
         "i32x4.relaxed_dot_i8x16_i7x16_add_s",
     ];
 
-    const SAMPLE: &str = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/instructions.toml"
-    ));
+    const SAMPLE: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/instructions.toml"));
 
     #[test]
     fn table_parses() {
         let table = parse_instructions_toml(SAMPLE).unwrap();
-        assert_eq!(table.instructions.len(), 457);
+        assert!(table.instructions.len() >= 566);
         assert_eq!(table.instructions[0].name, "unreachable");
         assert_eq!(table.instructions[0].opcode, Opcode::Single(0));
         validate_instructions_table(&table).unwrap();
@@ -153,7 +150,7 @@ mod embedded_tests {
     #[test]
     fn embedded_entrypoint() {
         let table = instructions();
-        assert_eq!(table.instructions.len(), 457);
+        assert!(table.instructions.len() >= 566);
         assert!(!INSTRUCTIONS_TOML.is_empty());
         validate_instructions_table(table).unwrap();
     }

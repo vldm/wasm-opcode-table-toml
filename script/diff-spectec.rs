@@ -38,10 +38,7 @@ fn main() {
 
 fn run() -> Result<(), String> {
     let mut args = env::args().skip(1);
-    let spectec_path = args
-        .next()
-        .map(PathBuf::from)
-        .ok_or_else(|| usage())?;
+    let spectec_path = args.next().map(PathBuf::from).ok_or_else(|| usage())?;
 
     let instructions_path = args
         .next()
@@ -123,7 +120,10 @@ struct MissingOpcode {
 fn hex_byte(input: &str) -> IResult<&str, u8> {
     let (input, digits) = preceded(tag_no_case("0x"), hex_digit1).parse(input)?;
     let value = u8::from_str_radix(digits, 16).map_err(|_| {
-        nom::Err::Failure(nom::error::make_error(input, nom::error::ErrorKind::HexDigit))
+        nom::Err::Failure(nom::error::make_error(
+            input,
+            nom::error::ErrorKind::HexDigit,
+        ))
     })?;
     Ok((input, value))
 }
@@ -213,11 +213,7 @@ fn parse_spectec(source: &str) -> Vec<SpectecRule> {
                 });
             }
         } else if pending_left.is_some() && !trimmed.is_empty() && !trimmed.starts_with("grammar") {
-            pending_left = Some(format!(
-                "{} {}",
-                pending_left.take().unwrap(),
-                trimmed
-            ));
+            pending_left = Some(format!("{} {}", pending_left.take().unwrap(), trimmed));
         }
     }
 
@@ -257,7 +253,10 @@ fn format_opcode(opcode: Opcode) -> String {
 
 fn print_missing_table(w: &mut impl fmt::Write, missing: &[MissingOpcode]) -> fmt::Result {
     if missing.is_empty() {
-        writeln!(w, "No missing instructions (all Spectec opcodes are in the table).")?;
+        writeln!(
+            w,
+            "No missing instructions (all Spectec opcodes are in the table)."
+        )?;
         return Ok(());
     }
 
@@ -267,7 +266,12 @@ fn print_missing_table(w: &mut impl fmt::Write, missing: &[MissingOpcode]) -> fm
         .max()
         .unwrap_or(6)
         .max(6);
-    let ast_col = missing.iter().map(|m| m.ast.len()).max().unwrap_or(3).max(3);
+    let ast_col = missing
+        .iter()
+        .map(|m| m.ast.len())
+        .max()
+        .unwrap_or(3)
+        .max(3);
 
     writeln!(
         w,

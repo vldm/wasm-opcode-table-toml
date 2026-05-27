@@ -100,11 +100,13 @@ curl -sL -o spec.instructions.spectec \
   https://raw.githubusercontent.com/WebAssembly/spec/main/specification/wasm-latest/5.3-binary.instructions.spectec
 
 # Compare against the bundled instructions.toml (default second argument)
-./script/diff-spectec.rs spec.instructions.spectec
+./script/diff-spectec.rs script/latest-binary-instr.spectec
 
-# Or pass a custom instructions file
-./script/diff-spectec.rs spec.instructions.spectec path/to/instructions.toml
+# Threads atomics (subopcode is varuint, not a second hex byte — see script/threads-binary-instr.spectec)
+./script/diff-spectec.rs script/threads-binary-instr.spectec
 ```
+
+Prefixed opcodes in TOML use the **subopcode value** encoded as a varuint after the prefix byte (e.g. `[0xFE, 16]` for `i32.atomic.load`, matching [wasmparser](https://docs.rs/wasmparser/latest/src/wasmparser/binary_reader.rs.html#1830)), not the raw LEB128 wire bytes. Spectec grammars should write `0xFE 16:Bu32`, not `0xFE 0x10`.
 
 Example output (truncated):
 
@@ -113,9 +115,6 @@ opcode          spectec                              section
 --------------  -----------------------------------  ----------------
 0x08            THROW x                              control instructions
 [0xFB, 24]      BR_ON_CAST l (REF null_1? ht_1) ...  control instructions
-
-42 missing instruction(s).
-```
 
 Exit code `2` means there are missing opcodes; `0` means the table covers every rule in the Spectec file.
 
