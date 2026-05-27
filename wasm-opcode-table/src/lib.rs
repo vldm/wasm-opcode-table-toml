@@ -35,7 +35,7 @@ mod tests {
             .iter()
             .find(|i| i.name == "table.fill")
             .expect("table.fill");
-        assert_eq!(fill.opcode, Opcode::Multi(vec![0xFC, 17]));
+        assert_eq!(fill.opcode, Opcode::Multi(0xFC, 17));
         let imms = fill.immediates.as_ref().expect("immediates");
         assert_eq!(imms[0].ty, "tableidx");
         assert_eq!(imms[0].name.as_deref(), Some("x"));

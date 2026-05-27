@@ -26,12 +26,22 @@ pub struct Instruction {
     pub since: Option<String>,
 }
 
-/// Binary opcode: single byte (`0x6A`) or prefix sequence (`[0xFC, 17]`).
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-#[serde(untagged)]
+/// Opcode as written in TOML: an integer (`0x6A`) or a two-element array (`[0xFC, 17]`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Opcode {
-    Single(u64),
-    Multi(Vec<u64>),
+    /// `opcode = 0xNN`
+    Single(u8),
+    /// `opcode = [prefix, index]` — prefix byte and opcode index.
+    Multi(u8, u32),
+}
+
+impl<'de> Deserialize<'de> for Opcode {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        serde_helpers::deserialize_opcode(deserializer)
+    }
 }
 
 /// Immediate operand in the instruction encoding.
@@ -104,9 +114,75 @@ impl<'de> Deserialize<'de> for StackEntry {
 }
 
 mod serde_helpers {
-    use super::{ControlFrame, StackEntry, TypeExpr};
+    use super::{ControlFrame, Opcode, StackEntry, TypeExpr};
     use serde::de;
     use serde::{Deserialize, Deserializer};
+
+    pub(super) fn deserialize_opcode<'de, D>(deserializer: D) -> Result<Opcode, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        OpcodeRaw::deserialize(deserializer).and_then(|raw| {
+            raw.try_into()
+                .map_err(|e: OpcodeTomlError| de::Error::custom(e))
+        })
+    }
+
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum OpcodeRaw {
+        Single(u64),
+        Multi(Vec<u64>),
+    }
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    enum OpcodeTomlError {
+        SingleOutOfRange(u64),
+        MultiWrongLength(usize),
+        MultiOutOfRange { prefix: u64, index: u64 },
+    }
+
+    impl std::fmt::Display for OpcodeTomlError {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                Self::SingleOutOfRange(v) => write!(f, "single opcode {v} does not fit in u8"),
+                Self::MultiWrongLength(len) => {
+                    write!(f, "multi opcode must have exactly 2 elements, got {len}")
+                }
+                Self::MultiOutOfRange { prefix, index } => write!(
+                    f,
+                    "multi opcode [{prefix}, {index}] does not fit in (u8, u32)"
+                ),
+            }
+        }
+    }
+
+    impl TryFrom<OpcodeRaw> for Opcode {
+        type Error = OpcodeTomlError;
+
+        fn try_from(raw: OpcodeRaw) -> Result<Self, Self::Error> {
+            match raw {
+                OpcodeRaw::Single(value) => {
+                    let byte = u8::try_from(value).map_err(|_| OpcodeTomlError::SingleOutOfRange(value))?;
+                    Ok(Self::Single(byte))
+                }
+                OpcodeRaw::Multi(values) => {
+                    let [prefix, index] = values
+                        .try_into()
+                        .map_err(|v: Vec<u64>| OpcodeTomlError::MultiWrongLength(v.len()))?;
+                    let prefix = u8::try_from(prefix).map_err(|_| OpcodeTomlError::MultiOutOfRange {
+                        prefix,
+                        index,
+                    })?;
+                    let index = u32::try_from(index).map_err(|_| OpcodeTomlError::MultiOutOfRange {
+                        prefix: u64::from(prefix),
+                        index,
+                    })?;
+                    Ok(Self::Multi(prefix, index))
+                }
+            }
+        }
+    }
 
     pub(super) fn deserialize_stack_entry<'de, D>(deserializer: D) -> Result<StackEntry, D::Error>
     where
