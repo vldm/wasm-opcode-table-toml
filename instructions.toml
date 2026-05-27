@@ -3419,3 +3419,163 @@ category = "vector"
 stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
 feature = "simd"
 since = "2"
+
+[[instructions]]
+name = "i8x16.relaxed_swizzle"
+opcode = [0xFD, 256]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.relaxed_trunc_f32x4_s"
+opcode = [0xFD, 257]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.relaxed_trunc_f32x4_u"
+opcode = [0xFD, 258]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.relaxed_trunc_f64x2_s_zero"
+opcode = [0xFD, 259]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.relaxed_trunc_f64x2_u_zero"
+opcode = [0xFD, 260]
+category = "vector"
+stack-type = { from = [ { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.relaxed_madd"
+opcode = [0xFD, 261]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.relaxed_nmadd"
+opcode = [0xFD, 262]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.relaxed_madd"
+opcode = [0xFD, 263]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.relaxed_nmadd"
+opcode = [0xFD, 264]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i8x16.relaxed_laneselect"
+opcode = [0xFD, 265]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.relaxed_laneselect"
+opcode = [0xFD, 266]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.relaxed_laneselect"
+opcode = [0xFD, 267]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i64x2.relaxed_laneselect"
+opcode = [0xFD, 268]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.relaxed_min"
+opcode = [0xFD, 269]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f32x4.relaxed_max"
+opcode = [0xFD, 270]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.relaxed_min"
+opcode = [0xFD, 271]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "f64x2.relaxed_max"
+opcode = [0xFD, 272]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.relaxed_q15mulr_s"
+opcode = [0xFD, 273]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i16x8.relaxed_dot_i8x16_i7x16_s"
+opcode = [0xFD, 274]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"
+
+[[instructions]]
+name = "i32x4.relaxed_dot_i8x16_i7x16_add_s"
+opcode = [0xFD, 275]
+category = "vector"
+stack-type = { from = [ { type = "v128" }, { type = "v128" }, { type = "v128" } ], to = [ { type = "v128" } ] }
+feature = "relaxed-simd"
+since = "2"

@@ -13,6 +13,29 @@ pub use instructions::{instructions, INSTRUCTIONS_TOML};
 mod tests {
     use super::*;
 
+    const RELAXED_SIMD_NAMES: &[&str] = &[
+        "i8x16.relaxed_swizzle",
+        "i32x4.relaxed_trunc_f32x4_s",
+        "i32x4.relaxed_trunc_f32x4_u",
+        "i32x4.relaxed_trunc_f64x2_s_zero",
+        "i32x4.relaxed_trunc_f64x2_u_zero",
+        "f32x4.relaxed_madd",
+        "f32x4.relaxed_nmadd",
+        "f64x2.relaxed_madd",
+        "f64x2.relaxed_nmadd",
+        "i8x16.relaxed_laneselect",
+        "i16x8.relaxed_laneselect",
+        "i32x4.relaxed_laneselect",
+        "i64x2.relaxed_laneselect",
+        "f32x4.relaxed_min",
+        "f32x4.relaxed_max",
+        "f64x2.relaxed_min",
+        "f64x2.relaxed_max",
+        "i16x8.relaxed_q15mulr_s",
+        "i16x8.relaxed_dot_i8x16_i7x16_s",
+        "i32x4.relaxed_dot_i8x16_i7x16_add_s",
+    ];
+
     const SAMPLE: &str = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../instructions.toml"
@@ -21,7 +44,7 @@ mod tests {
     #[test]
     fn table_parses() {
         let table = parse_instructions_toml(SAMPLE).unwrap();
-        assert_eq!(table.instructions.len(), 437);
+        assert_eq!(table.instructions.len(), 457);
         assert_eq!(table.instructions[0].name, "unreachable");
         assert_eq!(table.instructions[0].opcode, Opcode::Single(0));
         validate_instructions_table(&table).unwrap();
@@ -87,6 +110,28 @@ mod tests {
     }
 
     #[test]
+    fn relaxed_simd_instructions() {
+        let table = parse_instructions_toml(SAMPLE).unwrap();
+        let relaxed: Vec<_> = table
+            .instructions
+            .iter()
+            .filter(|i| i.feature.as_deref() == Some("relaxed-simd"))
+            .collect();
+        assert_eq!(relaxed.len(), 20);
+
+        for (idx, name) in RELAXED_SIMD_NAMES.iter().enumerate() {
+            let insn = table
+                .instructions
+                .iter()
+                .find(|i| i.name == *name)
+                .unwrap_or_else(|| panic!("missing {name}"));
+            assert_eq!(insn.opcode, Opcode::Multi(0xFD, idx as u32 + 256));
+            assert_eq!(insn.category, "vector");
+            assert_eq!(insn.feature.as_deref(), Some("relaxed-simd"));
+        }
+    }
+
+    #[test]
     fn loop_label_is_start() {
         let table = parse_instructions_toml(SAMPLE).unwrap();
         let loop_insn = table
@@ -108,7 +153,7 @@ mod embedded_tests {
     #[test]
     fn embedded_entrypoint() {
         let table = instructions();
-        assert_eq!(table.instructions.len(), 437);
+        assert_eq!(table.instructions.len(), 457);
         assert!(!INSTRUCTIONS_TOML.is_empty());
         validate_instructions_table(table).unwrap();
     }
